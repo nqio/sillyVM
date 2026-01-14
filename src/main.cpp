@@ -8,7 +8,8 @@ namespace svm {
     DIV,
     MOV,
     LABEL,
-    GOTO // go to label in code
+    GOTO, // go to label in code
+    JN0 // jump IF NOT 0; JN0 VAR/ADDR, LABEL
   };
 
   struct instruction {
@@ -33,37 +34,44 @@ namespace svm {
         case instruction_type::SAVE:
           variables.insert({instructions[i].arguments[0], get_value(instructions[i].arguments[1])});
           break;
-
+        
         case instruction_type::CHANGE:
           variables[instructions[i].arguments[0]] = get_value(instructions[i].arguments[1]);
           break;
-
+        
         case instruction_type::ADD:
           memory[get_value(instructions[i].arguments[0])] += memory[get_value(instructions[i].arguments[1])];
           break;
-
+        
         case instruction_type::SUB:
           memory[get_value(instructions[i].arguments[0])] -= memory[get_value(instructions[i].arguments[1])];
           break;
-
+        
         case instruction_type::MUL:
           memory[get_value(instructions[i].arguments[0])] *= memory[get_value(instructions[i].arguments[1])];
           break;
-
+        
         case instruction_type::DIV:
           memory[get_value(instructions[i].arguments[0])] /= memory[get_value(instructions[i].arguments[1])];
           break;
-
+        
         case instruction_type::MOV:
           memory[get_value(instructions[i].arguments[0])] = memory[get_value(instructions[i].arguments[1])];
           break;
-
+        
         case instruction_type::LABEL:
           labels.insert({instructions[i].arguments[0], (size_t) i});
           break;
         
         case instruction_type::GOTO:
           i = labels[instructions[i].arguments[0]] - 1;
+          break;
+
+        case instruction_type::JN0:
+          if (memory[get_value(instructions[i].arguments[0])] != 0) {
+            i = labels[instructions[i].arguments[1]] - 1;
+          }
+
           break;
       }
     }
